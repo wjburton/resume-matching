@@ -1,0 +1,25 @@
+Package: resmatch
+Type: Package
+Title: Match resumes to job postings
+Version: 0.1.0
+Author: Will Burton/Kasey Jones
+Description: resmatch calls indeed.com api to extract jobs and job descriptions and matches them to resumes
+License: What license is it under?
+LazyData: TRUE
+Imports: rvest,
+    dplyr,
+    stringr,
+    httr,
+    randomForest,
+    tm,
+    SnowballC,
+    RPostgreSQL
+Depends:rvest,
+    dplyr,
+    stringr,
+    httr,
+    tm,
+    SnowballC,
+    RPostgreSQL
+RoxygenNote: 5.0.1
+Suggests: testthat
