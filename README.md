@@ -12,3 +12,6 @@ between the resume and each job posting.
 In addition to looking at newly pulled jobs, resmatch stores each indeed.com api pull in a postgres database. When a user searches a job in the app, a postgres database is queried in addition to the api pull and the new api pulled jobs are added to the database. This allows more jobs to be compared in a much shorter amount of time. The database will become a source for future research to see how the data science jobs are transforming over time.
 
 resmatch is not intended for general use, but is the backbone of an R Shiny App. This app is in the development process and will be deployed shortly 
+
+##### Usage:
+Upon deployment: to use the app someone would simply paste their resume into a text box, then type a location preference and key term to search on, then click submit. The App will query all current jobs in the database and additional jobs from indeed.com.
