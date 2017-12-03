@@ -1,6 +1,5 @@
 
 values <- eventReactive(input$go, {
-  print('hello1')
     if (input$go == 0)
         return(NULL)
     return(isolate({
@@ -11,9 +10,8 @@ values <- eventReactive(input$go, {
 })
 
 query_coursera <- eventReactive(input$go, {
-  print('hello')
   query <- stringr::str_replace_all(score_data$missing_key_terms, ' ', '+')
-  coursera_scrape <- coursera_scrape(query = query)
+  coursera_scrape <<- coursera_scrape(query = query)
   coursera_scrape
 })
 

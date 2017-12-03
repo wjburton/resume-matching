@@ -66,6 +66,7 @@ Residential Assistant							January 2012-May 2013
 .	Kept accurate and organized student records and forms
 .	Planned and implemented educational and social programs
 COMPUTER SKILLS
+. SAS
 .	Base Certification, work in on a daily basis
 
 AWARDS & SCHOLARSHIPS

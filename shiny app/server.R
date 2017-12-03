@@ -11,9 +11,9 @@ output$resume_skills_tbl <- renderDataTable({
     if (input$go == 0)
         return(NULL)
     return(isolate({
-    score_df <<- values()
+    score_data <<- values()
     print(score_df)
-    data.frame('Your Skills' = score_df$resume_key_terms %>% as.character() %>% strsplit(' ') %>% unlist)
+    data.frame('Your Skills' = score_data$resume_key_terms %>% as.character() %>% strsplit(' ') %>% unlist)
     }))
 }, escape = FALSE, options = list(paging = FALSE,
                                   searching = FALSE,
@@ -26,8 +26,7 @@ output$job_skills_tbl <- renderDataTable({
   if (input$go == 0)
     return(NULL)
   return(isolate({
-    score_df <- values()
-    data.frame('Skills Missing' = score_df$missing_key_terms %>% as.character() %>% strsplit(' ') %>% unlist)
+    data.frame('Skills Missing' = score_data$missing_key_terms %>% as.character() %>% strsplit(' ') %>% unlist)
   }))
 }, escape = FALSE, options = list(paging = FALSE,
                                   searching = FALSE,
@@ -40,8 +39,20 @@ output$job_exp <- renderDataTable({
   if (input$go == 0)
     return(NULL)
   return(isolate({
-    score_df <- values()
-    data.frame('Required Experience' = score_df$job_exp)
+    data.frame('Experience Needed' = score_data$exp_needed)
+  }))
+}, escape = FALSE, options = list(paging = FALSE,
+                                  searching = FALSE,
+                                  ordering = FALSE,
+                                  fixedHeader.footer = FALSE,
+                                  footerCallback = FALSE,
+                                  bInfo = FALSE))
+
+output$score <- renderDataTable({
+  if (input$go == 0)
+    return(NULL)
+  return(isolate({
+    data.frame('Matching.Score' = score_data$final_scores)
   }))
 }, escape = FALSE, options = list(paging = FALSE,
                                   searching = FALSE,
@@ -54,7 +65,7 @@ output$coursera_table <- renderDataTable({
   if (input$go == 0)
     return(NULL)
   return(isolate({
-    score_df <<- coursera_df# query_coursera()
+    score_df <<- query_coursera()
     data.frame('Classes' = score_df$classes, 'Link' = score_df$link)
   }))
 }, escape = FALSE)

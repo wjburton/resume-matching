@@ -5,57 +5,23 @@ shinyUI(fluidPage( theme = "bootstrap.css",
 navbarPage("Path to your dream job: An R Shiny Application",
     tabPanel("Job Scoring, and Skills Matching",
 
-    fluidPage(
         fluidRow(
            tags$br(),
-           column(width = 1, actionButton("showResume", "Enter Resume:  ", width = "140%")),
+           column(offset = 1, width = 1, actionButton("showResume", "Enter Resume:  ", width = "140%")),
            column(offset = 1, width = 3, sliderInput("experience", "Years of Related Experience:", min=0, max=40, value=0)),
-           column(width = 3, textInput("href", "Job Link:", value = "paste link here")),
+           column(offset = 1, width = 3, textInput("href", "Job Link:", value = "paste link here")),
            column(width = 1, actionButton("go", "Get Results:", width="140%")),
-        fluidRow(
-          column(offset = 2, width = 2, tags$h2(uiOutput("value")), dataTableOutput("resume_skills_tbl")),
-          column(offset = 4, width = 2, tags$h2(uiOutput("value2")), dataTableOutput("job_skills_tbl")),
-          column(width = 2,tags$h2(uiOutput("value3")), dataTableOutput("job_exp")))
+        fixedRow(
+          tags$br()
+        ),
+        fixedRow(
+          column(offset = 2, width = 2,tags$h2(uiOutput("value")), dataTableOutput("resume_skills_tbl")),
+          column(width = 2, tags$h2(uiOutput("value2")), dataTableOutput("job_skills_tbl")),
+          column(width = 2,tags$h2(uiOutput("value3")), dataTableOutput("job_exp")),
+          column(width = 2,tags$h2(uiOutput("value4")), dataTableOutput("score"))
           ),
         dataTableOutput("coursera_table")
     ),
-
-    # fluidPage(
-    #     fluidRow(
-    #         column(offset = 7, width = 1,
-    #                actionButton("showResume", "Enter Resume:", width = "120%")),
-    #         column(1,
-    #                actionButton("go", "Get Results:", width="120%")),
-    #         column(1)
-    #         ),
-    #     tags$br()
-    # ),
-
-   # fluidPage(
-   #   fluidRow(
-   #     column(width = 4,
-   #            h2("Skills you have"),
-   #            dataTableOutput("recentTable1"))#,
-   #     # column(width = 8,
-   #     #        h2("Skills you need"),
-   #     #        dataTableOutput("recentTable1"))
-   #   )),
-   # fluidPage(
-   #   fluidRow(
-   #     column(1,tags$h2(uiOutput("value")), dataTableOutput("resume_skills_tbl")),
-   #     column(width = 1,tags$h2(uiOutput("value2")), dataTableOutput("job_skills_tbl")),
-   #     column(width = 1,tags$h2(uiOutput("value3")), dataTableOutput("job_exp")),
-   #     uiOutput("frame")
-   #     #column(4,plotlyOutput("topSkills"))
-   #   )),
-   # fluidPage(
-   #   fluidRow(
-   #     column(1),
-   #     column(6, showOutput("piechart", "nvd3"), style="height:250px;")
-   #     #column(4,plotlyOutput("topSkills"))
-   #   )),
-   #
-
 
     ## ----
     ### The Modal information

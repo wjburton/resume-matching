@@ -10,8 +10,8 @@
 
 score_key_terms <- function(job_key_terms, resume_key_terms){
 
-    job_key_terms <- strsplit(job_key_terms, split = " ")
-    job_key_freq <- sapply(job_key_terms,function(x) log(table(x) + 1))
+    job_key_terms <- strsplit(job_key_terms, split = " ") %>% unlist
+    job_key_freq <- log(table(job_key_terms) + 1)
 
     resume_key_terms <- unlist(strsplit(resume_key_terms, split = " "))
 
@@ -49,18 +49,21 @@ create_score_df <- function(resume_df, resume_exp = 2, job_df){
 
   #score the different jobs using cosine similarity and key terms metric
   #weight the function by the experience weight and output all the scores in a dataframe
-  matching_score <- 0.5 #score_function(resume_df$text, job_df$text)
+  tdm <- tm::TermDocumentMatrix(tm::Corpus(tm::VectorSource(c(resume_df$text, job_df$text)))) %>% as.matrix
+  matching_score <- lsa::cosine(tdm)[1,2]
   key_terms_sim <- score_key_terms(job_key_terms = job_df$key_terms,
                                    resume_key_terms = resume_df$key_terms)
-  final_scores <- ifelse(is.na(key_terms_sim), matching_score, matching_score/2 + key_terms_sim/2)
+  final_scores <- ifelse(is.na(key_terms_sim), matching_score, matching_score + key_terms_sim/2)
   final_scores <- final_scores * experience_weight
 
-  unique_job_key_terms <- job_df$key_terms %>% strsplit(' ') %>% unlist %>%  unique %>% paste(collapse = ' ')
-  unique_resume_key_terms <- resume_df$key_terms %>% strsplit(' ') %>% unlist %>% unique %>% paste(collapse = ' ')
+  unique_job_key_terms <- job_df$key_terms %>% strsplit(' ') %>% unlist %>%  unique
+  unique_resume_key_terms <- resume_df$key_terms %>% strsplit(' ') %>% unlist %>% unique
 
-  missing_terms <- unique_job_key_terms[!(unique_job_key_terms %in% unique_resume_key_terms)]
-  score_df <- data.frame(final_scores, resume_key_terms = unique_resume_key_terms,
-                         job_key_terms = unique_job_key_terms, job_exp = job_df$years_exp, resume_exp = resume_exp,
+  exp_needed <- ifelse((job_df$years_exp - resume_exp) > 0, job_df$years_exp - resume_exp, 0)
+  exp_needed <- paste(exp_needed, 'years')
+  missing_terms <- paste(unique_job_key_terms[!(unique_job_key_terms %in% unique_resume_key_terms)], collapse = ' ')
+  score_df <- data.frame(final_scores =paste0(round(final_scores,2)*100, '% Match'), resume_key_terms = paste(unique_resume_key_terms, collapse = ' '),
+                         job_key_terms = paste(unique_job_key_terms, collapse = ' '), exp_needed = exp_needed,
                          missing_key_terms = missing_terms)
 
   return(score_df)
