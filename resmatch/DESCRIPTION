@@ -9,17 +9,13 @@ LazyData: TRUE
 Imports: rvest,
     dplyr,
     stringr,
-    httr,
     randomForest,
     tm,
     SnowballC,
-    RPostgreSQL
-Depends:rvest,
+Depends: rvest,
     dplyr,
     stringr,
-    httr,
     tm,
     SnowballC,
-    RPostgreSQL
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
 Suggests: testthat

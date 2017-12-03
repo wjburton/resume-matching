@@ -22,4 +22,3 @@ extracts key terms found in the text
 \examples{
 extract_key_terms(some_vector_of_words, unique = fALSE)
 }
-

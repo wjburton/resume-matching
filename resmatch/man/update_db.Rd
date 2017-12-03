@@ -16,4 +16,3 @@ this function identifies all jobs over a week old. It then queries the indeed ap
 to determine whether the job has expired or not. If it is then the row is deleted and moved into
 the old_indeed_info table
 }
-

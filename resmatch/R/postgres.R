@@ -1,24 +1,24 @@
-#postgresql
-
-#' Hook into postgres database
-#' @description Either pull information out, or append new information
-#' @param new_df = dataframe to append to current database
-#' @param append = whether to append the database or not
-#' @return  nothing
-#' @export
-postgres_append <- function(new_df = NULL, append = FALSE){
-
-  # appends df to the PostgreSQL database "postgres", table "indeed_info"
-    if(append == TRUE){
-    key <- dbGetQuery(con, 'SELECT job_key from indeed_info')
-    new_df <- new_df %>% filter(!(job_key %in% key$job_key))
-    new_df <- new_df %>% filter(!duplicated(job_key))
-    dbWriteTable(con, "indeed_info",
-               value = new_df, append = TRUE, row.names = FALSE, overwrite = FALSE)
-    cat("Data has been appended to database")
-    }
-}
-
+#' #postgresql
+#'
+#' #' Hook into postgres database
+#' #' @description Either pull information out, or append new information
+#' #' @param new_df = dataframe to append to current database
+#' #' @param append = whether to append the database or not
+#' #' @return  nothing
+#' #' @export
+#' postgres_append <- function(new_df = NULL, append = FALSE){
+#'
+#'   # appends df to the PostgreSQL database "postgres", table "indeed_info"
+#'     if(append == TRUE){
+#'     key <- dbGetQuery(con, 'SELECT job_key from indeed_info')
+#'     new_df <- new_df %>% filter(!(job_key %in% key$job_key))
+#'     new_df <- new_df %>% filter(!duplicated(job_key))
+#'     dbWriteTable(con, "indeed_info",
+#'                value = new_df, append = TRUE, row.names = FALSE, overwrite = FALSE)
+#'     cat("Data has been appended to database")
+#'     }
+#' }
+#'
 
 
 

@@ -17,4 +17,3 @@ a vector: Scores for each resume-job pair
 \description{
 Scores key terms between resumes and job postings
 }
-

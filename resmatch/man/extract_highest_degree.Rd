@@ -15,4 +15,3 @@ numeric value. NA = no degree, 1 = bachelors, 2 = mastrs, 3 = phd
 \description{
 extracts highest level of degree obtained or required
 }
-

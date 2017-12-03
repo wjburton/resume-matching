@@ -2,7 +2,7 @@
 % Please edit documentation in R/postgres.R
 \name{query_database}
 \alias{query_database}
-\title{Allows the user to query the postgres database for search terms or location}
+\title{#postgresql}
 \usage{
 query_database(db_search_term = "", db_location = "", lim = 10000)
 }
@@ -17,7 +17,3 @@ query_database(db_search_term = "", db_location = "", lim = 10000)
 overwrites the old rdata file with an updated version
 (you can never remove existing terms, only add new ones)
 }
-\description{
-Allows the user to query the postgres database for search terms or location
-}
-

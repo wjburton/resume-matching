@@ -7,13 +7,14 @@
 #' extract keywords found in the keywords dataset and find max years experience. This can
 #' be applied to a string of text (resume), or a href to a job posting.
 #' @param href = link to webpage
+#' @param test = raw text
 #' @return dataframe containing three columns: text, key_terms, years_exp
 #' @export
 #'
-clean_text <- function(text = NULL, href = NULL, for_query = FALSE){
+clean_text <- function(href = NULL, text = NULL){
 
   #this chunk is only needed on cleaning text called through the api
-  if(!is.null(href)){
+  if(is.null(text)){
     html <- read_html(href)
     html %>%
       html_nodes('#job_summary') %>%
@@ -28,14 +29,8 @@ clean_text <- function(text = NULL, href = NULL, for_query = FALSE){
   text <- gsub('[\\.]', "", text) #remove whitespace and replace with a single space
   text <- gsub('([a-z])([A-Z])','\\1 \\2', text) #add space between lcase and ucase letters
   text <- gsub('[^a-zA-Z0-9 $]', "", text)
-  #text <- gsub("([a-zA-Z])([0-9])", "\\1 \\2", text)
   text <- gsub('\\s+', " ", text) # convert multiple whitespaces to a single whitespace
   text <- tolower(text) #make everything lowercase
-
-  if(for_query == TRUE){
-    return(text)
-    break
-  }
 
   internship <- is_internship(text) #is this posting an internship?
   experience <- extract_years_experience(text) #grab max yrs experience
@@ -46,6 +41,7 @@ clean_text <- function(text = NULL, href = NULL, for_query = FALSE){
   text <- suppressWarnings(text[is.na(as.numeric(text))]) #remove numbers
 
   key_items <- extract_key_terms(tolower(text), unique = FALSE) #grab keywords
+  stemmed_text <- wordStem(text)
 
   text <- paste(text, collapse = ' ') #collapse back into text string
   df <- data.frame('text' = text,

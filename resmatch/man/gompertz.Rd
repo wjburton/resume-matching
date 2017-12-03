@@ -15,4 +15,3 @@ numeric value. NA = no degree, 1 = bachelors, 2 = mastrs, 3 = phd
 \description{
 Used to determine a weight for the scores based on work experience
 }
-
