@@ -23,4 +23,3 @@ with the api request: expired, country, state, city, company, title, href, dates
 \description{
 Make data request to indeed.com api
 }
-

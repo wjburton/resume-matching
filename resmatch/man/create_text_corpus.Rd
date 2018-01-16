@@ -16,4 +16,3 @@ a Vcorpus/Corpus ready to turn into a document term matrix
 Creates a corpus of the text/vector. Removes punctuation, numbers, stopwords,
 whitespace, and stems the document
 }
-

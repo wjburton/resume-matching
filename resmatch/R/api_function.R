@@ -10,14 +10,14 @@
 #' @export
 call_indeed_api <- function(search_term = "analyst", location =  "",start_point="", lim = 5){
 
-  api <- 'http://api.indeed.com/ads/apisearch?publisher=####################'
+  api <- 'http://api.indeed.com/ads/apisearch?publisher=5795537109414523'
 
   #make api request
   xml_file <- GET(api, query = list(q = search_term,
                                v = 2,
                                l = location,
                                filter = 1,
-                               limit = lim,
+                               limit = 20,
                                start = start_point))
 
   xml_file <- httr::content(xml_file)
@@ -60,6 +60,12 @@ call_indeed_api <- function(search_term = "analyst", location =  "",start_point=
     html_nodes('jobkey') %>%
     html_text() -> job_key
 
+  summary_df <- NULL
+  for(i in 1:length(href)){
+    new_row <- clean_text(href = href[i])
+    summary_df <- rbind(summary_df, new_row)
+  }
+
   search_term <- rep(search_term, length(job_key))
 
   location <- rep(location,length(job_key))
@@ -67,8 +73,12 @@ call_indeed_api <- function(search_term = "analyst", location =  "",start_point=
   #take useful content and form a database
   indeed_data <- data.frame(search_term, 'search_location' = location, expired, country, state,
                             city, company, job_title,
-                            href, date, job_key, stringsAsFactors = F)
+                            href, date, job_key,summary_df, stringsAsFactors = F)
   return(indeed_data)
 
 }
+
+
+
+
 

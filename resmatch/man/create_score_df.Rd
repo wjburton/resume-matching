@@ -4,7 +4,7 @@
 \alias{create_score_df}
 \title{Combines scoring functions to create final scores between resumes and job postings}
 \usage{
-create_score_df(resume, resume_exp = 2, job_db)
+create_score_df(resume_df, resume_exp = 2, job_df)
 }
 \arguments{
 \item{resume}{= raw resume}
@@ -17,4 +17,3 @@ a vector: Final scores for each resume-job pair
 \description{
 Combines scoring functions to create final scores between resumes and job postings
 }
-

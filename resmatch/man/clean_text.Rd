@@ -4,10 +4,12 @@
 \alias{clean_text}
 \title{Extract/clean text from indeed.com}
 \usage{
-clean_text(text = NULL, href = NULL, for_query = FALSE)
+clean_text(href = NULL, text = NULL)
 }
 \arguments{
 \item{href}{= link to webpage}
+
+\item{test}{= raw text}
 }
 \value{
 dataframe containing three columns: text, key_terms, years_exp
@@ -17,4 +19,3 @@ Use regular expressions to eliminate irrelevant html syntax/formatting. Also
 extract keywords found in the keywords dataset and find max years experience. This can
 be applied to a string of text (resume), or a href to a job posting.
 }
-

@@ -1,50 +1,4 @@
 
-#' Calculates cos_sim between a resume, and job postings
-#' @param resume_text_corpus = corpus of the resume
-#' @param job_text_corpus = corpus of the job postings
-#' @return the cosine similarity scores between
-#' @export
-#'
-#'
-
-cos_sim <- function(resume_text_corpus,job_text_corpus){
-    # Calculate Term frequencies for jobs and the resume
-    combined_tf <- as.matrix(TermDocumentMatrix(c(resume_text_corpus, job_text_corpus)))
-
-    # only keep terms that are contained in both the query (resume), and in at least one document( job posts)
-    combined_tf <- combined_tf[combined_tf[,1] > 0,] #remove terms not in query
-    combined_tf <- combined_tf[apply(combined_tf[,-1],1,sum) > 0,] #remove terms not in documents
-
-    #calculate term frequency for the query (resume)
-    resume_tf <- combined_tf[,1]
-    resume_log_tf <- 1 + log10(resume_tf)
-
-    #calculate term frequency for the document (job posts)
-    job_tf <- combined_tf[,-1]
-    job_log_tf <- ifelse(is.infinite(log10(job_tf)),0,1 + log10(job_tf))
-
-    #calculate idf
-    doc_ocurrence <- as.matrix(apply(job_tf,1, function(x) length(which(x > 0))))
-    idf <- log10((length(job_text_corpus)/doc_ocurrence ))
-
-    #calculate query (resume) tf*idf
-    resume_tf_idf <- resume_log_tf * idf
-
-    #calculate document (job posts) tf*idf
-    job_tf_idf <- apply(job_log_tf, 2, function(x) x * idf)
-
-    #calculate query (resume) unit vector
-    resume_tf_idf_unit <- resume_tf_idf/sqrt(sum(resume_tf_idf^2))
-
-    #calculate document (job posts) tf*idf unit vector
-    job_tf_idf_unit <- apply(job_tf_idf,2,function(x) x/sqrt(sum(x^2)))
-
-    #find the dot product of the two unit vectoer
-    scores <-  apply(job_tf_idf_unit,2, function(x) crossprod(resume_tf_idf_unit, x))
-    scores[is.na(scores)] <- 0
-    return(scores)
-}
-
 
 
 
@@ -56,21 +10,21 @@ cos_sim <- function(resume_text_corpus,job_text_corpus){
 
 score_key_terms <- function(job_key_terms, resume_key_terms){
 
-    job_key_terms <- strsplit(job_key_terms, split = " ")
-    job_key_freq <- sapply(job_key_terms,function(x) log(table(x) + 1))
+    job_key_terms <- strsplit(job_key_terms, split = " ") %>% unlist
+    job_key_freq <- log(table(job_key_terms) + 1)
 
     resume_key_terms <- unlist(strsplit(resume_key_terms, split = " "))
 
-    scores <- sapply(job_key_freq, function(key_terms) {
-        if(length(key_terms)[1] != 0){
-            total <- sum(key_terms)
-            matched_terms <- key_terms[names(key_terms) %in% resume_key_terms]
-            filter_total <- sum(matched_terms)
-            return(filter_total/total)
-        }else NA
-    })
-    return(scores)
+     if(length(job_key_terms)[1] != 0){
+       total <- sum(job_key_freq)
+       matched_terms <- job_key_freq[names(job_key_freq) %in% resume_key_terms]
+       filter_total <- sum(matched_terms)
+       score <- (filter_total/total)
+      }else{
+        score <- NA
+    }
 
+    return(score)
 }
 
 
@@ -81,32 +35,38 @@ score_key_terms <- function(job_key_terms, resume_key_terms){
 #' @return a vector: Final scores for each resume-job pair
 #' @export
 
-create_score_df <- function(resume, resume_exp = 2, job_db){
+create_score_df <- function(resume_df, resume_exp = 2, job_df){
 
-    #calculate experience diff
-    experience_diff <- job_db$years_exp - resume_exp
+  #calculate experience diff
+  experience_diff <- job_df$years_exp - resume_exp
 
-    #run the exp diff through the gompertz function to return score weight
-    experience_weight <- gompertz(ifelse(is.na(experience_diff),0,experience_diff))
+  #run the exp diff through the gompertz function to return score weight
+  experience_weight <- gompertz(ifelse(is.na(experience_diff),0,experience_diff))
 
-    #create corpus of job info
-    job_text_corpus <- create_text_corpus(job_db$text)
-    job_key_terms <- job_db$key_terms
+  #create corpus of job info
+  job_text_corpus <- create_text_corpus(job_df$text)
+  job_key_terms <- job_df$key_terms
 
-    #put resume in corpus form
-    resume <- clean_text(resume)
-    resume_text_corpus <- create_text_corpus(resume$text)
-    resume_key_terms <- resume$key_terms
+  #score the different jobs using cosine similarity and key terms metric
+  #weight the function by the experience weight and output all the scores in a dataframe
+  tdm <- tm::TermDocumentMatrix(tm::Corpus(tm::VectorSource(c(resume_df$text, job_df$text)))) %>% as.matrix
+  matching_score <- lsa::cosine(tdm)[1,2]
+  key_terms_sim <- score_key_terms(job_key_terms = job_df$key_terms,
+                                   resume_key_terms = resume_df$key_terms)
+  final_scores <- ifelse(is.na(key_terms_sim), matching_score, matching_score + key_terms_sim/2)
+  final_scores <- final_scores * experience_weight
 
-    #score the different jobs using cosine similarity and key terms metric
-    #weight the function by the experience weight and output all the scores in a dataframe
-    cos_sim <- cos_sim(resume_text_corpus, job_text_corpus)
-    key_terms_sim <- score_key_terms(job_key_terms, resume_key_terms)
-    final_scores <- ifelse(is.na(key_terms_sim), cos_sim, cos_sim/2 + key_terms_sim/2)
-    final_scores <- final_scores * experience_weight
-    score_df <- data.frame(cos_sim, key_terms_sim, experience_weight, final_scores)
+  unique_job_key_terms <- job_df$key_terms %>% strsplit(' ') %>% unlist %>%  unique
+  unique_resume_key_terms <- resume_df$key_terms %>% strsplit(' ') %>% unlist %>% unique
 
-    return(score_df)
+  exp_needed <- ifelse((job_df$years_exp - resume_exp) > 0, job_df$years_exp - resume_exp, 0)
+  exp_needed <- paste(exp_needed, 'years')
+  missing_terms <- paste(unique_job_key_terms[!(unique_job_key_terms %in% unique_resume_key_terms)], collapse = ' ')
+  score_df <- data.frame(final_scores =paste0(round(final_scores,2)*100, '% Match'), resume_key_terms = paste(unique_resume_key_terms, collapse = ' '),
+                         job_key_terms = paste(unique_job_key_terms, collapse = ' '), exp_needed = exp_needed,
+                         missing_key_terms = missing_terms)
+
+  return(score_df)
 }
 
 
@@ -120,32 +80,12 @@ create_score_df <- function(resume, resume_exp = 2, job_db){
 #' @return a dataframe needed for the app
 #' @export
 
-generate_scores <- function(resume, work_exp = 2, search_term = "", location = "",
-                            db_lim = 10000, indeed_lim = 5,start_point = 1,
-                            pull_from_db = TRUE, pull_from_indeed = TRUE){
-  df1 <- NULL
-  df2 <- NULL
-
-  if(pull_from_db == TRUE){
-    df1 <- query_database(search_term, location, db_lim)
-    if(!is.null(df1)){
-      df1 %>% select(-c(date, last_checked_date)) -> df1
-    }
-  }
-
-
-  if(pull_from_indeed == TRUE){
-    df2 <- try(pull_new_job_data(search_term, location, add_to_db = TRUE, lim = indeed_lim, start_point = start_point))
-    if(!is.null(df2)){
-      df2 %>% select(-c(date, last_checked_date)) -> df2
-    }
-  }
-
-  job_db <- rbind(df1,df2)
-  scored_df <- create_score_df(resume, work_exp, job_db)
-
-  output_for_app <- cbind(job_db,scored_df)
-  return(output_for_app)
+generate_scores <- function(resume, href, work_exp){
+  clean_job_df <- clean_text(href = href)
+  clean_resume_df <- clean_text(text = resume)
+  scored_df <- create_score_df(resume_df = clean_resume_df, resume_exp = work_exp,
+                               job_df = clean_job_df)
+  return(scored_df)
 }
 
 

@@ -15,4 +15,3 @@ TRUE if numbers are equal FALSE if they are not
 \description{
 This function is used to in the pct concordant function
 }
-

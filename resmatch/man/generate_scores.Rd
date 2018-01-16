@@ -4,9 +4,7 @@
 \alias{generate_scores}
 \title{Combines scoring functions to create final scores between resumes and job postings}
 \usage{
-generate_scores(resume, work_exp = 2, search_term = "", location = "",
-  db_lim = 10000, indeed_lim = 5, start_point = 1, pull_from_db = TRUE,
-  pull_from_indeed = TRUE)
+generate_scores(resume, href, work_exp)
 }
 \arguments{
 \item{resume}{= raw resume}
@@ -27,4 +25,3 @@ a dataframe needed for the app
 \description{
 Combines scoring functions to create final scores between resumes and job postings
 }
-

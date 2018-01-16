@@ -1,11 +1,12 @@
 #old functions
 
-
+#'
 #' #' Cleans html to prepare for variable creation
 #' #'
 #' #' @description Use regular expressions to eliminate irrelevant html syntax/formatting
 #' #' @param html = raw website html
 #' #' @return a list containing clean text broken down into sections based on the number of spaces
+#' #' @export
 #' clean_general_html <- function(html){
 #'   text_list <- list()
 #'   remove <- "\\||~|!|@|#|%|\\^|&|\\*|\\(|\\)|\\{|\\}|_|\\+|\\:|\\|<|>|\\?|,|;|'|\\[|\\]|="
@@ -26,7 +27,7 @@
 #'   return(text_list[!sapply(text_list, is.null)])
 #' }
 #'
-#'
+#' #'
 #'
 #'
 #' #' Creates variables used to generate scores
@@ -262,5 +263,51 @@
 #' #   cos.sim <- colSums(prod)
 #' #   cos.sim
 #' # }
+
+
+#' #' Calculates cos_sim between a resume, and job postings
+#' #' @param resume_text_corpus = corpus of the resume
+#' #' @param job_text_corpus = corpus of the job postings
+#' #' @return the cosine similarity scores between
+#' #' @export
+#' #'
+#' #'
+#' cos_sim <- function(resume_text_corpus,job_text_corpus){
+#'   # Calculate Term frequencies for jobs and the resume
+#'   combined_tf <- as.matrix(TermDocumentMatrix(c(resume_text_corpus, job_text_corpus)))
+#'
+#'   # only keep terms that are contained in both the query (resume), and in at least one document( job posts)
+#'   combined_tf <- combined_tf[combined_tf[,1] > 0,] #remove terms not in query
+#'   combined_tf <- combined_tf[apply(combined_tf[,-1],1,sum) > 0,] #remove terms not in documents
+#'
+#'   #calculate term frequency for the query (resume)
+#'   resume_tf <- combined_tf[,1]
+#'   resume_log_tf <- 1 + log10(resume_tf)
+#'
+#'   #calculate term frequency for the document (job posts)
+#'   job_tf <- combined_tf[,-1]
+#'   job_log_tf <- ifelse(is.infinite(log10(job_tf)),0,1 + log10(job_tf))
+#'
+#'   #calculate idf
+#'   doc_ocurrence <- as.matrix(apply(job_tf,1, function(x) length(which(x > 0))))
+#'   idf <- log10((length(job_text_corpus)/doc_ocurrence ))
+#'
+#'   #calculate query (resume) tf*idf
+#'   resume_tf_idf <- resume_log_tf * idf
+#'
+#'   #calculate document (job posts) tf*idf
+#'   job_tf_idf <- apply(job_log_tf, 2, function(x) x * idf)
+#'
+#'   #calculate query (resume) unit vector
+#'   resume_tf_idf_unit <- resume_tf_idf/sqrt(sum(resume_tf_idf^2))
+#'
+#'   #calculate document (job posts) tf*idf unit vector
+#'   job_tf_idf_unit <- apply(job_tf_idf,2,function(x) x/sqrt(sum(x^2)))
+#'
+#'   #find the dot product of the two unit vectoer
+#'   scores <-  apply(job_tf_idf_unit,2, function(x) crossprod(resume_tf_idf_unit, x))
+#'   scores[is.na(scores)] <- 0
+#'   return(scores)
+#' }
 
 

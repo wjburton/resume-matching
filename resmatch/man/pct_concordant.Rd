@@ -15,4 +15,3 @@ score = vector of scores associated with the outcomes
 \description{
 Calculate concordant pairs
 }
-

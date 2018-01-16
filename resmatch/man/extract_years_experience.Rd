@@ -15,4 +15,3 @@ numeric value, the max number of years found
 \description{
 extracts max number of years experience required
 }
-

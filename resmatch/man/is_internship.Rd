@@ -16,4 +16,3 @@ overwrites the old rdata file with an updated version
 \description{
 Determine if posting is an internship
 }
-

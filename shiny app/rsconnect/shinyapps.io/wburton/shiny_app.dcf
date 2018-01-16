@@ -1,0 +1,10 @@
+name: shiny_app
+title:
+username:
+account: wburton
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 243540
+bundleId: 1112649
+url: https://wburton.shinyapps.io/shiny_app/
+when: 1512340471.48303
